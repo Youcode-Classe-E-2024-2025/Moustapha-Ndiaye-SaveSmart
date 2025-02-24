@@ -7,13 +7,15 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## SaveSmart Application d’optimisation budgétaire
+# SaveSmart Application d’optimisation budgétaire
 
-# Application d’optimisation budgétaire
+## Application d’optimisation budgétaire
 
-# Author du Brief: Iliass RAIHANI
+## Author du Brief: Iliass RAIHANI
 
-# Author: Moustapha Ndiaye
+### Date of creation : 24/02/25
+
+## Codeur: Moustapha Ndiaye
 
 ## Links
 
@@ -21,5 +23,5 @@
 
 [Repositoy](https://github.com/Youcode-Classe-E-2024-2025/Moustapha-Ndiaye-SaveSmart.git)
 
-## Iliass RAIHANI (créé : 24/02/25)
+
 
