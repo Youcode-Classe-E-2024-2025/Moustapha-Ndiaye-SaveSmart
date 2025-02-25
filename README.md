@@ -23,5 +23,5 @@
 
 [Repositoy](https://github.com/Youcode-Classe-E-2024-2025/Moustapha-Ndiaye-SaveSmart.git)
 
-
+[UML](https://app.diagrams.net/#G1nR0oXBIQmfBFaSSmTP-W8Q_YU49aa-we#%7B%22pageId%22%3A%22C5RBs43oDa-KdzZeNtuy%22%7D)
 
