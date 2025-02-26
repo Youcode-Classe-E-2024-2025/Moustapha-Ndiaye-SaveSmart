@@ -4,11 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Family extends Model
+class Goals extends Model
 {
     protected $fillable = [
-         'firstname',
-        'family_id'
+        'name',
+        'target_amount',
+        'current_amount',
+        'deadline',
+        'family_id' ,
     ];
 
     public function familys(){
