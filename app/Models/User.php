@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Family extends Model
+class User extends Model
 {
     protected $fillable = [
-         'firstname',
+        'firstname',
         'family_id'
     ];
 
