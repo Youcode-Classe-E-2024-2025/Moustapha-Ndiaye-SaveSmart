@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Family Account</title>
+  <title>Dashbord</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -32,58 +32,8 @@
   </style>
 </head>
 <body>
-  <div class="container max-w-4xl mx-auto p-6 opacity-85">
-    <div class="bg-white rounded-lg shadow-xl overflow-hidden">
-      <div class="bg-gradient-to-r from-[#968aa8] to-[#DFDBE5] p-6 text-white">
-        <h1 class="text-3xl font-bold mb-2">Welcome, {{$name}} Family</h1>
-        <p class="opacity-80">Please select your profile</p>
-      </div>
-      
-      <div class="p-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        @foreach($users as $user)
-            <div class="user-card bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border border-gray-200">
-            <form action="/dashboard/{{ $user->id }}" method="POST" class="w-full">
-                @csrf
-                <button type="submit" class="block w-full">
-                <div class="p-4 flex flex-col items-center">
-                    <div class="avatar w-20 h-20 rounded-full mb-3">
-                    {{ substr($user->firstname, 0, 1) }}
-                    </div>
-                    <h3 class="font-bold text-xl text-gray-800">{{ $user->firstname }}</h3>
-                    @if($user->role)
-                    <span class="text-sm text-gray-500 mt-1">{{ $user->role }}</span>
-                    @endif
-                </div>
-                </button>
-            </form>
-            </div>
-        @endforeach
+<h1 class="text-3xl font-bold mb-2">Welcome, {{$user}} </h1>
 
-        </div>
-      </div>
-      
-      <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-        <div class="flex justify-between items-center">
-          <button class="text-gray-600 hover:text-indigo-600 transition-colors flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-              <path fill-rule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clip-rule="evenodd" />
-            </svg>
-            <span class="hidden sm:inline">Add a member</span>
-          </button>
-          <form action="{{url('logout')}}" method="Post">
-            @csrf
-          <button class="text-gray-600 hover:text-red-600 transition-colors flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-              <path fill-rule="evenodd" d="M17 4.25A2.25 2.25 0 0 0 14.75 2h-5.5A2.25 2.25 0 0 0 7 4.25v2a.75.75 0 0 0 1.5 0v-2a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 .75.75v11.5a.75.75 0 0 1-.75.75h-5.5a.75.75 0 0 1-.75-.75v-2a.75.75 0 0 0-1.5 0v2A2.25 2.25 0 0 0 9.25 18h5.5A2.25 2.25 0 0 0 17 15.75V4.25Z" clip-rule="evenodd" />
-              <path fill-rule="evenodd" d="M1 10a.75.75 0 0 1 .75-.75h9.546l-1.048-.943a.75.75 0 1 1 1.004-1.114l2.5 2.25a.75.75 0 0 1 0 1.114l-2.5 2.25a.75.75 0 1 1-1.004-1.114l1.048-.943H1.75A.75.75 0 0 1 1 10Z" clip-rule="evenodd" />
-            </svg>
-            <span class="hidden sm:inline">Logout</span>
-          </button>
-          </form>
-        </div>
-      </div>
-    </div>
   </div>
 </body>
 </html>

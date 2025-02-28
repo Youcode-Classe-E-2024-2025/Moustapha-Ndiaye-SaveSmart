@@ -6,9 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Family;
+use App\Models\User;
+
 
 class AuthController extends Controller
 {
+    public function showDashboard($id){
+        $user = User::find($id)->firstname;
+        return view('user.dashboard', compact('user'));
+    }
+
     public function showProfilPage(){
         $family = Auth::user();
         $users = $family->users;

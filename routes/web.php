@@ -15,5 +15,6 @@ Route::post('logout', [AuthController::class, 'logout']);
 // auth routes 
 Route::middleware(['auth'])->group(function (){
     Route::get('profile', [AuthController::class, 'showProfilPage'])->name('user.profile');
+    Route::post('dashboard/{id}', [AuthController::class, 'showDashboard'])->name('user.dashboard');
 });
 
