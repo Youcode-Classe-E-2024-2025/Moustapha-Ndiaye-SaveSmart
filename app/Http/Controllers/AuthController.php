@@ -10,7 +10,7 @@ use App\Models\Family;
 class AuthController extends Controller
 {
     public function showProfilPage(){
-        return view('user.profil');
+        return view('user.profile');
     }
     public function showRegisterForm()
     {

@@ -10,3 +10,8 @@ Route::post('register', [AuthController::class, 'register']);
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
 
+// auth routes 
+Route::middleware(['auth'])->group(function (){
+    Route::get('profile', [AuthController::class, 'showProfilPage'])->name('user.profile');
+});
+
