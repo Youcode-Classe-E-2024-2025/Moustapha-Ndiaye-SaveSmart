@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use App\Models\Family;
 
 class AuthController extends Controller
 {
+    public function showProfilPage(){
+        return view('user.profil');
+    }
     public function showRegisterForm()
     {
         return view('auth.register');
@@ -23,17 +26,19 @@ class AuthController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email|unique:families',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $user = User::create([
+        $user = Family::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        return to_route('login')->with('success', 'Registration successful');
+        
+
+        return view('auth.login')->with('success', 'Registration successful');
     }
 
     public function login(Request $request)
