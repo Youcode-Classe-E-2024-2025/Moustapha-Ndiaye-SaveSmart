@@ -10,7 +10,12 @@ use App\Models\Family;
 class AuthController extends Controller
 {
     public function showProfilPage(){
-        return view('user.profile');
+        $family = Auth::user();
+        $users = $family->users;
+        return view('user.profile', [
+            'name' => $family->name,
+            'users' => $users,
+        ]);
     }
     public function showRegisterForm()
     {
