@@ -9,7 +9,6 @@ class Transaction extends Model
     protected $fillable = [
         'amount', 
         'description', 
-        'trancsatin_date',
         'type',
         'category_id',
         'family_id'

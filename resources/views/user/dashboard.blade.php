@@ -75,12 +75,11 @@
                     <option value="expense">Expense</option>
                   </select>
                   
-                  <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent">
+                  <select name="categories_id" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent">
                     <option value="">All Categories</option>
-                    <option value="1">Food</option>
-                    <option value="2">Transport</option>
-                    <option value="3">Utilities</option>
-                    <option value="4">Entertainment</option>
+                    @foreach ($categories as $category)
+                          <option value="{{ $category->id }}" >{{ $category->name }}</option>
+                      @endforeach
                   </select>
                 </div>
               </div>
@@ -180,7 +179,7 @@
               </div>
               
               <div class="p-6">
-                <form id="addTransactionForm" action="" method="POST">
+                <form id="addTransactionForm" action="{{url('store')}}" method="POST">
                   @csrf
                   <div class="mb-4">
                     <label for="description" class="block text-gray-700 font-medium mb-2">Description</label>
@@ -202,15 +201,15 @@
                   </div>
                   
                   <div class="mb-6">
-                    <label for="category" class="block text-gray-700 font-medium mb-2">Category</label>
-                    <select id="category" name="categories_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
-                      <option value="">Select Category</option>
-                      <option value="1">Food</option>
-                      <option value="2">Transport</option>
-                      <option value="3">Utilities</option>
-                      <option value="4">Entertainment</option>
-                    </select>
-                  </div>
+                  <label for="category" class="block text-gray-700 font-medium mb-2">Category</label>
+                  <select id="category" name="categories_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
+                  <option value="">Select Category</option>
+                      @foreach ($categories as $category)
+                          <option value="{{ $category->id }}">{{ $category->name }}</option>
+                      @endforeach
+                  </select>
+                   </div>
+
                   
                   <div class="flex gap-4">
                     <button type="button" id="cancelTransactionBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-300">

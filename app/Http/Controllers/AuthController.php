@@ -7,13 +7,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Family;
 use App\Models\User;
+use App\Models\Category;
+
 
 
 class AuthController extends Controller
 {
     public function showDashboard($id){
         $user = User::find($id)->firstname;
-        return view('user.dashboard', compact('user'));
+        $categories = Category::all();
+        return view('user.dashboard', compact('user', 'categories'));
     }
 
     public function showProfilPage(){
