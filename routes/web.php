@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TransactionController;
+
 
 
 
@@ -20,5 +22,7 @@ Route::middleware(['auth'])->group(function (){
     Route::post('dashboard/{id}', [AuthController::class, 'showDashboard'])->name('user.dashboard');
     // new user
     Route::post('newUser', [UserController::class, 'newUser']);
+    // CRUD transactions
+    Route::ressource('transactions', [TransactionController::class]);
 });
 

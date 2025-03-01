@@ -51,9 +51,6 @@
                     {{ substr($user->firstname, 0, 1) }}
                     </div>
                     <h3 class="font-bold text-xl text-gray-800">{{ $user->firstname }}</h3>
-                    @if($user->role)
-                    <span class="text-sm text-gray-500 mt-1">{{ $user->role }}</span>
-                    @endif
                 </div>
                 </button>
             </form>
