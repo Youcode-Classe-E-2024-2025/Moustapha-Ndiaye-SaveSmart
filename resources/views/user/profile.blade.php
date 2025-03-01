@@ -36,7 +36,7 @@
     <div class="bg-white rounded-lg shadow-xl overflow-hidden">
       <div class="bg-gradient-to-r from-[#968aa8] to-[#DFDBE5] p-6 text-white">
         <h1 class="text-3xl font-bold mb-2">Welcome, {{$name}} Family</h1>
-        <p class="opacity-80">Please select your profile</p>
+        <p class="opacity-80">Please select your profile or create member</p>
       </div>
       
       <div class="p-6">
@@ -69,7 +69,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
               <path fill-rule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clip-rule="evenodd" />
             </svg>
-            <span class="hidden sm:inline">Add a member</span>
+            <span class="hidden sm:inline">New member</span>
           </button>
           <form action="{{url('logout')}}" method="Post">
             @csrf
@@ -81,9 +81,110 @@
             <span class="hidden sm:inline">Logout</span>
           </button>
           </form>
+          
         </div>
       </div>
+      <div id="addMemberModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="flex justify-between items-center p-4 border-b">
+      <h3 class="text-lg font-medium text-gray-900">New member</h3>
+      <button id="closeModal" class="text-gray-400 hover:text-gray-500">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="p-6">
+      <form id="addMemberForm" action="{{url('newUser')}}" method="POST">
+        @csrf
+        <label for="modalName" class="block text-gray-700 font-medium mb-2">Firstname</label>
+        <input type="text" id="modalName" name="firstname" value="{{old('name')}}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
+        <p id="nameError" class="text-red-600 text-sm mt-1 hidden"></p>
+        @if (session('success'))
+            <div class="bg-green-500 text-white p-2 rounded mt-2">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        
+        <div class="flex gap-4 mt-6">
+          <button type="button" id="cancelModal" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-300">
+            Cancel
+          </button>
+          <button type="submit" class="w-full bg-[#9f84c7] hover:bg-[#a49cb1] text-white font-medium py-2 px-4 rounded-md transition duration-300">
+            Create
+          </button>
+        </div>
+      </form>
     </div>
   </div>
+</div>
+    </div>
+  </div>
+
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get references to elements
+    const addMemberButton = document.querySelector('button.text-gray-600.hover\\:text-indigo-600');
+    const modal = document.getElementById('addMemberModal');
+    const closeModal = document.getElementById('closeModal');
+    const cancelModal = document.getElementById('cancelModal');
+    const form = document.getElementById('addMemberForm');
+    const nameInput = document.getElementById('modalName');
+    const nameError = document.getElementById('nameError');
+    
+    // Remove the old form that was at the bottom of the page
+    const oldForm = document.querySelector('.bg-gray-50.px-6.py-4.border-t:last-child');
+    if (oldForm) {
+      oldForm.remove();
+    }
+    
+    // Function to show the modal
+    function showModal() {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+      nameInput.focus();
+    }
+    
+    // Function to hide the modal
+    function hideModal() {
+      modal.classList.add('hidden');
+      document.body.style.overflow = ''; // Restore scrolling
+      form.reset();
+      nameError.classList.add('hidden');
+    }
+    
+    // Add event listeners
+    addMemberButton.addEventListener('click', showModal);
+    closeModal.addEventListener('click', hideModal);
+    cancelModal.addEventListener('click', hideModal);
+    
+    // Close modal when clicking outside of it
+    modal.addEventListener('click', function(event) {
+      if (event.target === modal) {
+        hideModal();
+      }
+    });
+    
+    // Form validation
+    form.addEventListener('submit', function(event) {
+      if (!nameInput.value.trim()) {
+        event.preventDefault();
+        nameError.textContent = 'Please enter a name';
+        nameError.classList.remove('hidden');
+        nameInput.focus();
+      }
+    });
+    
+    // Keyboard accessibility
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+        hideModal();
+      }
+    });
+  });
+</script>
 </body>
 </html>

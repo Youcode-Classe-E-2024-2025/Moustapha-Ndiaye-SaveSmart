@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+
 
 
 // publics routes 
@@ -16,5 +18,7 @@ Route::post('logout', [AuthController::class, 'logout']);
 Route::middleware(['auth'])->group(function (){
     Route::get('profile', [AuthController::class, 'showProfilPage'])->name('user.profile');
     Route::post('dashboard/{id}', [AuthController::class, 'showDashboard'])->name('user.dashboard');
+    // new user
+    Route::post('newUser', [UserController::class, 'newUser']);
 });
 
