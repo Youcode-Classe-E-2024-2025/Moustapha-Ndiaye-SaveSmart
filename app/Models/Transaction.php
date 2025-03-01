@@ -18,8 +18,12 @@ class Transaction extends Model
         return $this->belongsTo(Family::class);
     }
 
-    public function categories(){
-        return $this->hasMany(Categories::class);
+    // public function categories(){
+    //     return $this->hasMany(Categories::class);
+    // }
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'categories_id');
     }
 
     public function budgets(){

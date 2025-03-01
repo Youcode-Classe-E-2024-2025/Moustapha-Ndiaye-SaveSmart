@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Family;
 use App\Models\User;
 use App\Models\Category;
-
+use App\Models\Transaction;
 
 
 class AuthController extends Controller
@@ -16,7 +16,9 @@ class AuthController extends Controller
     public function showDashboard($id){
         $user = User::find($id)->firstname;
         $categories = Category::all();
-        return view('user.dashboard', compact('user', 'categories'));
+        $transactions = Transaction::all();
+        // dd($transactions);
+        return view('user.dashboard', compact('user', 'categories', 'transactions'));
     }
 
     public function showProfilPage(){

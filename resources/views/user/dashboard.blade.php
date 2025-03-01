@@ -102,10 +102,6 @@
                     <tr>
                       <td colspan="6" class="px-6 py-12 text-center">
                         <div class="flex flex-col items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <h3 class="text-lg font-medium text-gray-900 mb-1">No transactions yet</h3>
                           <p class="text-gray-500 mb-4">Start adding your income and expenses to track your family finances.</p>
                           <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#9f84c7] hover:bg-[#a49cb1] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#a49cb1]">
                             <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -118,40 +114,43 @@
                     </tr>
                     
                     <!-- Example transactions (these will be hidden when there are no transactions) -->
-                    <!-- Uncomment and populate from database when you have transactions
-                    <tr class="hover:bg-gray-50">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-02-28</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Grocery Shopping</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Food</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Expense</span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-red-600">-$78.45</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                        <button class="text-red-600 hover:text-red-900">Delete</button>
-                      </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-02-26</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Salary Deposit</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Income</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
+                    @foreach($transactions as $transaction)
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->created_at->format('Y-m-d') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $transaction->description }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    @if($transaction->category)
+                        {{ $transaction->category->name }}
+                    @else
+                        N/A
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    @if($transaction->type === 'income')
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Income</span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-green-600">+$2,500.00</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                        <button class="text-red-600 hover:text-red-900">Delete</button>
-                      </td>
-                    </tr>
-                    -->
+                    @else
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Expense</span>
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
+                    @if($transaction->type === 'income')
+                        +${{ number_format($transaction->amount, 2) }}
+                    @else
+                        -${{ number_format($transaction->amount, 2) }}
+                    @endif
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                    <button class="text-red-600 hover:text-red-900">Delete</button>
+                </td>
+            </tr>
+        @endforeach
                   </tbody>
                 </table>
               </div>
             </div>
             
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between items-center">
+            <!-- <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between items-center">
               <div class="text-sm text-gray-500">
                 Showing <span class="font-medium">0</span> out of <span class="font-medium">0</span> transactions
               </div>
@@ -163,7 +162,7 @@
                   Next
                 </button>
               </div>
-            </div>
+            </div> -->
           </div>
 
           <!-- Add Transaction Modal -->
