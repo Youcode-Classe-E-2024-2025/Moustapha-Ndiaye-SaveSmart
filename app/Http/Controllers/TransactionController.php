@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Transaction;
+use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 class TransactionController extends Controller
 {
     public function index(){
-
+        
     }
 
     public function create(Request $request){
@@ -63,11 +64,39 @@ class TransactionController extends Controller
         
     }
 
-    public function edit($id){
-        
+    public function edit($id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        $categories = Category::all(); 
+        return view('user.dashboard', compact('transaction', 'categories'));
     }
 
-    public function update(){
-        
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'description' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'type' => 'required|in:income,expense',
+            'categories_id' => 'required|exists:categories,id',
+        ]);
+
+        $transaction = Transaction::findOrFail($id);
+        $transaction->update([
+            'description' => $request->description,
+            'amount' => $request->amount,
+            'type' => $request->type,
+            'categories_id' => $request->categories_id,
+        ]);
+
+        return redirect()->back()->with('success', 'Transaction updated.');
+    }
+
+    public function destroy($id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        $transaction->delete();
+
+        return redirect()->back()->with('success', 'Transaction deleted.');
     }
 }

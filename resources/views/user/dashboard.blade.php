@@ -113,38 +113,98 @@
                       </td>
                     </tr>
                     
-                    <!-- Example transactions (these will be hidden when there are no transactions) -->
-                    @foreach($transactions as $transaction)
-            <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->created_at->format('Y-m-d') }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $transaction->description }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    @if($transaction->category)
-                        {{ $transaction->category->name }}
-                    @else
-                        N/A
-                    @endif
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    @if($transaction->type === 'income')
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Income</span>
-                    @else
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Expense</span>
-                    @endif
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                    @if($transaction->type === 'income')
-                        +${{ number_format($transaction->amount, 2) }}
-                    @else
-                        -${{ number_format($transaction->amount, 2) }}
-                    @endif
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                    <button class="text-red-600 hover:text-red-900">Delete</button>
-                </td>
-            </tr>
-        @endforeach
+                    @foreach ($transactions as $transaction)
+    <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->created_at->format('Y-m-d') }}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $transaction->description }}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->category->name }}</td> <!-- Dynamique pour la catégorie -->
+        <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $transaction->type == 'expense' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
+                {{ ucfirst($transaction->type) }}
+            </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium {{ $transaction->type == 'expense' ? 'text-red-600' : 'text-green-600' }}">
+            {{ $transaction->type == 'expense' ? '-$' : '+$' }}{{ number_format($transaction->amount, 2) }}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <!-- <a href="{{ route('dashboard.transactions.edit', $transaction->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a> -->
+        <!--edit  Modal -->
+        <a href="#" onclick="openModal({{ $transaction->id }})" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+        <div id="updateTransactionModal-{{ $transaction->id }}" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <!-- Header du modal -->
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="text-lg font-medium text-gray-900">Update Transaction</h3>
+            <button onclick="closeModal({{ $transaction->id }})" class="text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Contenu du modal -->
+        <div class="p-6">
+            <form action="{{ route('transactions.update', $transaction->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                <!-- Champ Description -->
+                <div class="mb-4">
+                    <label for="description-{{ $transaction->id }}" class="block text-gray-700 font-medium mb-2">Description</label>
+                    <input type="text" id="description-{{ $transaction->id }}" name="description" value="{{ old('description', $transaction->description) }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
+                </div>
+
+                <!-- Champ Amount -->
+                <div class="mb-4">
+                    <label for="amount-{{ $transaction->id }}" class="block text-gray-700 font-medium mb-2">Amount</label>
+                    <input type="number" id="amount-{{ $transaction->id }}" name="amount" step="0.01" min="0.01" value="{{ old('amount', $transaction->amount) }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
+                </div>
+
+                <!-- Sélection du Type -->
+                <div class="mb-4">
+                    <label for="type-{{ $transaction->id }}" class="block text-gray-700 font-medium mb-2">Type</label>
+                    <select id="type-{{ $transaction->id }}" name="type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
+                        <option value="income" {{ $transaction->type == 'income' ? 'selected' : '' }}>Income</option>
+                        <option value="expense" {{ $transaction->type == 'expense' ? 'selected' : '' }}>Expense</option>
+                    </select>
+                </div>
+
+                <!-- Sélection de la Catégorie -->
+                <div class="mb-6">
+                    <label for="category-{{ $transaction->id }}" class="block text-gray-700 font-medium mb-2">Category</label>
+                    <select id="category-{{ $transaction->id }}" name="categories_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
+                        <option value="">Select Category</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}" {{ $transaction->categories_id == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Boutons Actions -->
+                <div class="flex gap-4">
+                    <button type="button" onclick="closeModal({{ $transaction->id }})" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-300">
+                        Cancel
+                    </button>
+                    <button type="submit" class="w-full bg-[#9f84c7] hover:bg-[#a49cb1] text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                        Update Transaction
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+            <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+            </form>
+        </td>
+    </tr>
+@endforeach
+
                   </tbody>
                 </table>
               </div>
@@ -164,7 +224,7 @@
               </div>
             </div> -->
           </div>
-
+          
           <!-- Add Transaction Modal -->
           <div id="addTransactionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
             <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
@@ -266,7 +326,59 @@
         hideTransactionModal();
       }
     });
+
+    function openModal(transactionId) {
+        document.getElementById('modal-' + transactionId).classList.remove('hidden');
+    }
+
+    function closeModal(transactionId) {
+        document.getElementById('modal-' + transactionId).classList.add('hidden');
+    }
   });
+
+  // Function to open the modal for a specific transaction
+function openModal(transactionId) {
+    // Find and show the modal for the specific transaction
+    const modal = document.getElementById(`updateTransactionModal-${transactionId}`);
+    if (modal) {
+        modal.classList.remove('hidden');
+        // Prevent body scrolling when modal is open
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Function to close the modal for a specific transaction
+function closeModal(transactionId) {
+    // Find and hide the modal for the specific transaction
+    const modal = document.getElementById(`updateTransactionModal-${transactionId}`);
+    if (modal) {
+        modal.classList.add('hidden');
+        // Re-enable body scrolling
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Close modal when clicking outside of the modal content (optional enhancement)
+document.addEventListener('click', function(event) {
+    const modals = document.querySelectorAll('[id^="updateTransactionModal-"]');
+    modals.forEach(modal => {
+        if (event.target === modal) {
+            const transactionId = modal.id.split('-')[1];
+            closeModal(transactionId);
+        }
+    });
+});
+
+// Close modal with Escape key (optional enhancement)
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const visibleModal = document.querySelector('[id^="updateTransactionModal-"]:not(.hidden)');
+        if (visibleModal) {
+            const transactionId = visibleModal.id.split('-')[1];
+            closeModal(transactionId);
+        }
+    }
+});
 </script>
 </body>
 </html>

@@ -20,6 +20,8 @@ Route::middleware(['auth'])->group(function (){
     Route::get('profile', [AuthController::class, 'showProfilPage'])->name('user.profile');
     Route::get('dashboard/{id}', [AuthController::class, 'showDashboard']);
     Route::post('dashboard/{id}', [AuthController::class, 'showDashboard'])->name('user.dashboard');
+    Route::post('dashboard/{id}', [AuthController::class, 'showDashboard'])->name('user.dashboard');
+
 
     // new user
     Route::post('newUser', [UserController::class, 'newUser']);
@@ -27,6 +29,8 @@ Route::middleware(['auth'])->group(function (){
     // Route::post('dashboard/{id}', [CategoryController::class, 'index'])->name('user.dashboard');
 
     // CRUD transactions
-    // Route::resource('transactions', [TransactionController::class]);
+    Route::resource('transactions', TransactionController::class);
+    Route::get('/dashboard/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('dashboard.transactions.edit');
+
 });
 
