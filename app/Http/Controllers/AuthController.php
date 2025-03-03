@@ -13,13 +13,33 @@ use App\Models\Transaction;
 
 class AuthController extends Controller
 {
-    public function showDashboard($id){
+    public function showDashboard($id)
+    {
         $user = User::find($id)->firstname;
         $categories = Category::all();
         $transactions = Transaction::all();
-        // dd($transactions);
-        return view('user.dashboard', compact('user', 'categories', 'transactions'));
+    
+        // Get the income and expense evolution by date
+        $incomes = Transaction::where('type', 'income')
+            ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+    
+        $expenses = Transaction::where('type', 'expense')
+            ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+    
+        // Calculate the current budget: total income - total expenses
+        $total_income = Transaction::where('type', 'income')->sum('amount');
+        $total_expense = Transaction::where('type', 'expense')->sum('amount');
+        $current_budget = $total_income - $total_expense;
+    
+        return view('user.dashboard', compact('user', 'categories', 'transactions', 'incomes', 'expenses', 'current_budget'));
     }
+    
 
     public function showProfilPage(){
         $family = Auth::user();

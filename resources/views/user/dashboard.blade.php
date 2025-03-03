@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashbord</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       background-color: #DFDBE5;
@@ -50,6 +51,30 @@
           </button>
           </form>
         </div>
+        <!-- Income, Expense, and Budget Charts -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- Income Chart -->
+  <div class="bg-white p-6 rounded-lg shadow-lg">
+    <h3 class="text-xl font-bold mb-4">Income</h3>
+    <canvas id="incomeChart"></canvas>
+    <h3 class="text-center"> {{ $incomes->sum('total') }}</h3>
+  </div>
+
+  <!-- Expense Chart -->
+  <div class="bg-white p-6 rounded-lg shadow-lg">
+    <h3 class="text-xl font-bold mb-4">Expense</h3>
+    <canvas id="expenseChart"></canvas>
+    <h3 class="text-center"> {{ $expenses->sum('total') }}</h3>
+  </div>
+
+  <!-- Budget Chart -->
+  <div class="bg-white p-6 rounded-lg shadow-lg">
+    <h3 class="text-xl font-bold mb-4">Budget</h3>
+    <canvas id="budgetChart"></canvas>
+    <h3 class="text-center"> {{ $current_budget }}</h3>
+  </div>
+</div>
+
                   <!-- Transaction Table Card -->
           <div class="bg-white rounded-lg shadow-xl overflow-hidden">
             <div class="bg-gradient-to-r from-[#968aa8] to-[#DFDBE5] p-6 text-white">
@@ -380,8 +405,91 @@ document.addEventListener('keydown', function(event) {
     }
 });
 </script>
+<script>
+  // Pass the data from Blade to JavaScript
+  const incomesData = @json($incomes);
+  const expensesData = @json($expenses);
+  const currentBudget = @json($current_budget);
+
+  // Format data for chart.js
+  const incomeDates = incomesData.map(income => income.date);
+  const incomeTotals = incomesData.map(income => income.total);
+
+  const expenseDates = expensesData.map(expense => expense.date);
+  const expenseTotals = expensesData.map(expense => expense.total);
+
+  // Budget chart data
+  const budgetData = {
+    labels: incomeDates,  // Same as income dates
+    datasets: [{
+      label: 'Budget',
+      data: incomeTotals.map((income, index) => income - (expenseTotals[index] || 0)), // Calculate budget per date
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1
+    }]
+  };
+
+  // Income Chart
+  const incomeChart = new Chart(document.getElementById('incomeChart'), {
+    type: 'line',
+    data: {
+      labels: incomeDates,
+      datasets: [{
+        label: 'Income',
+        data: incomeTotals,
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  // Expense Chart
+  const expenseChart = new Chart(document.getElementById('expenseChart'), {
+    type: 'line',
+    data: {
+      labels: expenseDates,
+      datasets: [{
+        label: 'Expenses',
+        data: expenseTotals,
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  // Budget Chart
+  const budgetChart = new Chart(document.getElementById('budgetChart'), {
+    type: 'line',
+    data: budgetData,
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
 </body>
 </html>
-
-
-
