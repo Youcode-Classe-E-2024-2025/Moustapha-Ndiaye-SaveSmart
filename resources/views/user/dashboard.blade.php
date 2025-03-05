@@ -34,13 +34,13 @@
   </style>
 </head>
 <body>
-<div class="">
+<div>
   <!-- avatar -->
-        <div class="bg-white p-4 flex flex-col items-center rounded-lg m-3">
+  <div class="bg-white p-4 flex flex-col items-center rounded-lg m-3">
           <div class="avatar w-20 h-20 rounded-full mb-3 ">
-          {{ substr($user, 0, 1) }}
+          {{ substr($user->firstname, 0, 1) }}
           </div>
-          <h3 class="font-bold text-xl text-gray-800">{{ $user}}</h3>
+          <h3 class="font-bold text-xl text-gray-800">{{$user->firstname}}</h3>
           <form action="{{url('profile')}}" method="Get">
             @csrf
           <button class="text-gray-600 hover:text-red-600 transition-colors flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100">
@@ -52,416 +52,6 @@
           </button>
           </form>
         </div>
-        <!-- Income, Expense, and Budget Charts -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-  <!-- Income Chart -->
-  <div class="bg-white p-6 rounded-lg shadow-lg">
-    <h3 class="text-xl font-bold mb-4">Income</h3>
-    <canvas id="incomeChart"></canvas>
-    <h3 class="text-center"> {{ $incomes->sum('total') }}</h3>
-  </div>
-
-  <!-- Expense Chart -->
-  <div class="bg-white p-6 rounded-lg shadow-lg">
-    <h3 class="text-xl font-bold mb-4">Expense</h3>
-    <canvas id="expenseChart"></canvas>
-    <h3 class="text-center"> {{ $expenses->sum('total') }}</h3>
-  </div>
-
-  <!-- Budget Chart -->
-  <div class="bg-white p-6 rounded-lg shadow-lg">
-    <h3 class="text-xl font-bold mb-4">Budget</h3>
-    <canvas id="budgetChart"></canvas>
-    <h3 class="text-center"> {{ $current_budget }}</h3>
-  </div>
-
-  <!-- Optimize Chart -->
-  <div class="bg-white p-6 rounded-lg shadow-lg">
-    <h3 class="text-xl font-bold mb-4">Optimize</h3>
-    <canvas id="optimizebudgetChart"></canvas>
-    <h3 class="text-center"> {{ $current_budget }}</h3>
-    <div class="flex justify-around">
-      <button id="defaultButton" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#9f84c7] hover:bg-[#a49cb1]">Default</button>
-      <button id="intelligentButton" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#9f84c7] hover:bg-[#a49cb1]">Intelligent</button>
-    </div>
-  </div>
-
-</div>
-
-                  <!-- Transaction Table Card -->
-          <div class="bg-white rounded-lg shadow-xl overflow-hidden">
-            <div class="bg-gradient-to-r from-[#968aa8] to-[#DFDBE5] p-6 text-white">
-              <h2 class="text-2xl font-bold mb-2">Transaction Receipts</h2>
-              <p class="opacity-80">View your family's financial activity</p>
-            </div>
-            
-            <div class="p-6">
-              <!-- Search and Filter Controls -->
-              <div class="flex flex-col md:flex-row md:justify-between mb-6 gap-4">
-                <div class="relative">
-                  <input type="text" placeholder="Search transactions..." 
-                        class="pl-10 pr-4 py-2 border border-gray-300 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                
-                <div class="flex gap-2">
-                  <select class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent">
-                    <option value="">All Types</option>
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                  </select>
-                  
-                  <select name="categories_id" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent">
-                    <option value="">All Categories</option>
-                    @foreach ($categories as $category)
-                          <option value="{{ $category->id }}" >{{ $category->name }}</option>
-                      @endforeach
-                  </select>
-                </div>
-              </div>
-              
-              <!-- Transactions Table -->
-              <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                  <thead class="bg-gray-50">
-                    <tr>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody class="bg-white divide-y divide-gray-200">
-                    <!-- Show this when there are no transactions -->
-                    <tr>
-                      <td colspan="6" class="px-6 py-12 text-center">
-                        <div class="flex flex-col items-center">
-                          <p class="text-gray-500 mb-4">Start adding your income and expenses to track your family finances.</p>
-                          <button class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#9f84c7] hover:bg-[#a49cb1] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#a49cb1]">
-                            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                            </svg>
-                            Add Transaction
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                    
-                    @foreach ($transactions as $transaction)
-    <tr class="hover:bg-gray-50">
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->created_at->format('Y-m-d') }}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $transaction->description }}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->category->name }}</td> <!-- Dynamique pour la catégorie -->
-        <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $transaction->type == 'expense' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }}">
-                {{ ucfirst($transaction->type) }}
-            </span>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium {{ $transaction->type == 'expense' ? 'text-red-600' : 'text-green-600' }}">
-            {{ $transaction->type == 'expense' ? '-$' : '+$' }}{{ number_format($transaction->amount, 2) }}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <!-- <a href="{{ route('dashboard.transactions.edit', $transaction->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a> -->
-        <!--edit  Modal -->
-        <a href="#" onclick="openModal({{ $transaction->id }})" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-        <div id="updateTransactionModal-{{ $transaction->id }}" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <!-- Header du modal -->
-        <div class="flex justify-between items-center p-4 border-b">
-            <h3 class="text-lg font-medium text-gray-900">Update Transaction</h3>
-            <button onclick="closeModal({{ $transaction->id }})" class="text-gray-400 hover:text-gray-500">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-
-        <!-- Contenu du modal -->
-        <div class="p-6">
-            <form action="{{ route('transactions.update', $transaction->id) }}" method="POST">
-                @csrf
-                @method('PUT')
-
-                <!-- Champ Description -->
-                <div class="mb-4">
-                    <label for="description-{{ $transaction->id }}" class="block text-gray-700 font-medium mb-2">Description</label>
-                    <input type="text" id="description-{{ $transaction->id }}" name="description" value="{{ old('description', $transaction->description) }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
-                </div>
-
-                <!-- Champ Amount -->
-                <div class="mb-4">
-                    <label for="amount-{{ $transaction->id }}" class="block text-gray-700 font-medium mb-2">Amount</label>
-                    <input type="number" id="amount-{{ $transaction->id }}" name="amount" step="0.01" min="0.01" value="{{ old('amount', $transaction->amount) }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
-                </div>
-
-                <!-- Sélection du Type -->
-                <div class="mb-4">
-                    <label for="type-{{ $transaction->id }}" class="block text-gray-700 font-medium mb-2">Type</label>
-                    <select id="type-{{ $transaction->id }}" name="type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
-                        <option value="income" {{ $transaction->type == 'income' ? 'selected' : '' }}>Income</option>
-                        <option value="expense" {{ $transaction->type == 'expense' ? 'selected' : '' }}>Expense</option>
-                    </select>
-                </div>
-
-                <!-- Sélection de la Catégorie -->
-                <div class="mb-6">
-                    <label for="category-{{ $transaction->id }}" class="block text-gray-700 font-medium mb-2">Category</label>
-                    <select id="category-{{ $transaction->id }}" name="categories_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
-                        <option value="">Select Category</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}" {{ $transaction->categories_id == $category->id ? 'selected' : '' }}>
-                                {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Boutons Actions -->
-                <div class="flex gap-4">
-                    <button type="button" onclick="closeModal({{ $transaction->id }})" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-300">
-                        Cancel
-                    </button>
-                    <button type="submit" class="w-full bg-[#9f84c7] hover:bg-[#a49cb1] text-white font-medium py-2 px-4 rounded-md transition duration-300">
-                        Update Transaction
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-            <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-            </form>
-        </td>
-    </tr>
-@endforeach
-
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <!-- <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between items-center">
-              <div class="text-sm text-gray-500">
-                Showing <span class="font-medium">0</span> out of <span class="font-medium">0</span> transactions
-              </div>
-              <div class="flex gap-2">
-                <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                  Previous
-                </button>
-                <button class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                  Next
-                </button>
-              </div>
-            </div> -->
-          </div>
-          
-          <!-- Add Transaction Modal -->
-          <div id="addTransactionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-              <div class="flex justify-between items-center p-4 border-b">
-                <h3 class="text-lg font-medium text-gray-900">Add New Transaction</h3>
-                <button id="closeTransactionModal" class="text-gray-400 hover:text-gray-500">
-                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div class="p-6">
-                <form id="addTransactionForm" action="{{url('store')}}" method="POST">
-                  @csrf
-                  <div class="mb-4">
-                    <label for="description" class="block text-gray-700 font-medium mb-2">Description</label>
-                    <input type="text" id="description" name="description" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
-                  </div>
-                  
-                  <div class="mb-4">
-                    <label for="amount" class="block text-gray-700 font-medium mb-2">Amount</label>
-                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
-                  </div>
-                  
-                  <div class="mb-4">
-                    <label for="type" class="block text-gray-700 font-medium mb-2">Type</label>
-                    <select id="type" name="type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
-                      <option value="">Select Type</option>
-                      <option value="income">Income</option>
-                      <option value="expense">Expense</option>
-                    </select>
-                  </div>
-                  
-                  <div class="mb-6">
-                  <label for="category" class="block text-gray-700 font-medium mb-2">Category</label>
-                  <select id="category" name="categories_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a49cb1] focus:border-transparent" required>
-                  <option value="">Select Category</option>
-                      @foreach ($categories as $category)
-                          <option value="{{ $category->id }}">{{ $category->name }}</option>
-                      @endforeach
-                  </select>
-                   </div>
-
-                  
-                  <div class="flex gap-4">
-                    <button type="button" id="cancelTransactionBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-300">
-                      Cancel
-                    </button>
-                    <button type="submit" class="w-full bg-[#9f84c7] hover:bg-[#a49cb1] text-white font-medium py-2 px-4 rounded-md transition duration-300">
-                      Save Transaction
-                    </button>
-                  </div>
-                </form>
-              </div>
-  </div>
-  
-</div>
-<div class="container mx-auto px-4">
-    <h2 class="text-2xl font-bold mb-4">Goals Management</h2>
-    
-    <!-- Button to open add goal modal -->
-    <button id="openGoalModal" class="bg-blue-500 text-white px-4 py-2 rounded-md">
-        + Add Goal
-    </button>
-
-    <!-- Goals Table -->
-    <div class="mt-6">
-        <table class="w-full border-collapse border border-gray-300">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="border p-2">Title</th>
-                    <!-- <th class="border p-2">Amount</th> -->
-                    <th class="border p-2">Priority</th>
-                    <th class="border p-2">Family</th>
-                    <th class="border p-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($goals as $goal)
-                <tr>
-                    <td class="border p-2">{{ $goal->title }}</td>
-                    <!-- <td class="border p-2">{{ $goal->amount }} $</td> -->
-                    <td class="border p-2">{{ ucfirst($goal->priority) }}</td>
-                    <td class="border p-2">{{ $goal->family->name ?? 'N/A' }}</td>
-                    <td class="border p-2">
-                        <button onclick="editGoal({{ $goal->id }})" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                        <form action="{{ route('goals.destroy', $goal->id) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Add/Edit Goal Modal -->
-<div id="goalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h3 class="text-lg font-medium text-gray-900">Goal Details</h3>
-            <button id="closeGoalModal" class="text-gray-400 hover:text-gray-500">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        
-        <div class="p-6">
-            <form id="goalForm" action="{{ route('goals.store') }}" method="POST">
-                @csrf
-                <input type="hidden" id="goal_id" name="id">
-
-                <div class="mb-4">
-                    <label for="title" class="block text-gray-700 font-medium mb-2">Title</label>
-                    <input type="text" id="title" name="title" class="w-full px-3 py-2 border rounded-md" required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="priority" class="block text-gray-700 font-medium mb-2">Priority</label>
-                    <select id="priority" name="priority" class="w-full px-3 py-2 border rounded-md">
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label for="family_id" class="block text-gray-700 font-medium mb-2">Family</label>
-                    <select id="family_id" name="family_id" class="w-full px-3 py-2 border rounded-md">
-                        @foreach ($families as $family)
-                            <option value="{{ $family->id }}">{{ $family->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="flex gap-4">
-                    <button type="button" id="cancelGoalBtn" class="w-full bg-gray-200 hover:bg-gray-300 py-2 rounded-md">Cancel</button>
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white py-2 rounded-md">Save Goal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- Update Goal Modal -->
-<div id="updateGoalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="flex justify-between items-center p-4 border-b">
-            <h3 class="text-lg font-medium text-gray-900">Update Goal</h3>
-            <button id="closeUpdateGoalModal" class="text-gray-400 hover:text-gray-500">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-
-        <div class="p-6">
-            <form id="updateGoalForm" method="POST">
-                @csrf
-                @method('PUT')
-                <input type="hidden" id="update_goal_id" name="goal_id">
-
-                <div class="mb-4">
-                    <label for="update_title" class="block text-gray-700 font-medium mb-2">Title</label>
-                    <input type="text" id="update_title" name="title" class="w-full px-3 py-2 border rounded-md" required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="update_priority" class="block text-gray-700 font-medium mb-2">Priority</label>
-                    <select id="update_priority" name="priority" class="w-full px-3 py-2 border rounded-md">
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                    </select>
-                </div>
-
-                <div class="mb-4">
-                    <label for="update_family_id" class="block text-gray-700 font-medium mb-2">Family</label>
-                    <select id="update_family_id" name="family_id" class="w-full px-3 py-2 border rounded-md">
-                        @foreach ($families as $family)
-                            <option value="{{ $family->id }}">{{ $family->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="flex gap-4">
-                    <button type="button" id="cancelUpdateGoalBtn" class="w-full bg-gray-200 hover:bg-gray-300 py-2 rounded-md">Cancel</button>
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white py-2 rounded-md">Update Goal</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
 </div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -559,10 +149,10 @@ document.addEventListener('keydown', function(event) {
         }
     }
 });
-</script>
 
 
-<script>
+
+
 document.getElementById('openGoalModal').addEventListener('click', function() {
     document.getElementById('goalModal').classList.remove('hidden');
 });
@@ -579,8 +169,7 @@ function editGoal(goal) {
     document.getElementById('family_id').value = goal.family_id;
     document.getElementById('goalModal').classList.remove('hidden');
 }
-</script>
-<script>
+
 // Close update modal when close button is clicked
 document.getElementById('closeUpdateGoalModal').addEventListener('click', function() {
     document.getElementById('updateGoalModal').classList.add('hidden');
@@ -605,8 +194,8 @@ function editGoal(id, title, priority, family_id) {
     // Show modal
     document.getElementById('updateGoalModal').classList.remove('hidden');
 }
-</script>
-<script>
+
+
 document.addEventListener('DOMContentLoaded', function() {
     // Récupération des données depuis Blade
     const incomesData = @json($incomes);

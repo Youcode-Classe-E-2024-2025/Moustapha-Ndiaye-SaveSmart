@@ -56,18 +56,7 @@ class AuthController extends Controller
     $transactions = Transaction::all();
     $goals = Goals::all();
     $n = $goals->count();  
-    // dd($n);
-
-
-    // Définition des priorités
-    // $priorityWeights = ['high' => 3, 'medium' => 2, 'low' => 1];
-
-    // // Calcul des pourcentages en utilisant les combinaisons
-    // $highPercent = $this->calculerCombinaison(3, 1) * $this->calculerCombinaison(6, 3) / $this->calculerCombinaison($n, 1);
-    // $mediumPercent = $this->calculerCombinaison(3, 1) * $this->calculerCombinaison(6, 2) / $this->calculerCombinaison($n, 1);
-    // $lowPercent = $this->calculerCombinaison(3, 1) * $this->calculerCombinaison(6, 1) / $this->calculerCombinaison($n, 1);
-    // //  dd($highPercent);
-    // Définition des priorités
+    
     $priorityWeights = ['high' => 3, 'medium' => 2, 'low' => 1];
 
     $priorityPercentages = [];
@@ -78,12 +67,12 @@ class AuthController extends Controller
             / $this->calculerCombinaison($n, 1);
     }
 
-    // Extraction des valeurs pour les utiliser directement
+
     $highPercent = $priorityPercentages['high'];
     $mediumPercent = $priorityPercentages['medium'];
     $lowPercent = $priorityPercentages['low'];
 
-    // Attribution des couleurs et pourcentages par objectif
+
     $goalData = $goals->map(function ($goal) use ($n, $priorityWeights, $highPercent, $mediumPercent, $lowPercent) {
         $percent = match ($goal->priority) {
             'high' => $highPercent,
