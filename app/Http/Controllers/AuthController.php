@@ -9,37 +9,174 @@ use App\Models\Family;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Transaction;
+use App\Models\Goals;
+
 
 
 class AuthController extends Controller
+
 {
-    public function showDashboard($id)
+
+    public function calculerCombinaison($n, $k)
     {
-        $user = User::find($id)->firstname;
-        $categories = Category::all();
-        $transactions = Transaction::all();
-    
-        // Get the income and expense evolution by date
-        $incomes = Transaction::where('type', 'income')
-            ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-    
-        $expenses = Transaction::where('type', 'expense')
-            ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-    
-        // Calculate the current budget: total income - total expenses
-        $total_income = Transaction::where('type', 'income')->sum('amount');
-        $total_expense = Transaction::where('type', 'expense')->sum('amount');
-        $current_budget = $total_income - $total_expense;
-    
-        return view('user.dashboard', compact('user', 'categories', 'transactions', 'incomes', 'expenses', 'current_budget'));
+        if ($k > $n) {
+            return 0;
+        }
+
+        $factorielN = $this->factoriel($n);
+        $factorielK = $this->factoriel($k);
+        $factorielNK = $this->factoriel($n - $k);
+
+        $combinaison = $factorielN / ($factorielK * $factorielNK);
+
+        return $combinaison;
     }
+
+    private function factoriel($n)
+    {
+        if ($n <= 1) {
+            return 1;
+        }
+
+        $resultat = 1;
+        for ($i = 2; $i <= $n; $i++) {
+            $resultat *= $i;
+        }
+
+        return $resultat;
+    }
+    public function showDashboard($id)
+{
+    $user = User::find($id);
+    if (!$user) {
+        abort(404, 'User not found');
+    }
+
+    $categories = Category::all();
+    $transactions = Transaction::all();
+    $goals = Goals::all();
+    $n = $goals->count();  
+    // dd($n);
+
+
+    // Définition des priorités
+    // $priorityWeights = ['high' => 3, 'medium' => 2, 'low' => 1];
+
+    // // Calcul des pourcentages en utilisant les combinaisons
+    // $highPercent = $this->calculerCombinaison(3, 1) * $this->calculerCombinaison(6, 3) / $this->calculerCombinaison($n, 1);
+    // $mediumPercent = $this->calculerCombinaison(3, 1) * $this->calculerCombinaison(6, 2) / $this->calculerCombinaison($n, 1);
+    // $lowPercent = $this->calculerCombinaison(3, 1) * $this->calculerCombinaison(6, 1) / $this->calculerCombinaison($n, 1);
+    // //  dd($highPercent);
+    // Définition des priorités
+    $priorityWeights = ['high' => 3, 'medium' => 2, 'low' => 1];
+
+    $priorityPercentages = [];
+
+    foreach ($priorityWeights as $priority => $weight) {
+        $priorityPercentages[$priority] = $this->calculerCombinaison(3, 1) 
+            * $this->calculerCombinaison(6, $weight) 
+            / $this->calculerCombinaison($n, 1);
+    }
+
+    // Extraction des valeurs pour les utiliser directement
+    $highPercent = $priorityPercentages['high'];
+    $mediumPercent = $priorityPercentages['medium'];
+    $lowPercent = $priorityPercentages['low'];
+
+    // Attribution des couleurs et pourcentages par objectif
+    $goalData = $goals->map(function ($goal) use ($n, $priorityWeights, $highPercent, $mediumPercent, $lowPercent) {
+        $percent = match ($goal->priority) {
+            'high' => $highPercent,
+            'medium' => $mediumPercent,
+            'low' => $lowPercent,
+            default => 10
+        };
+
+        return [
+            'title' => $goal->title,
+            'percent' => $percent , 
+            'color' => $this->generateColorForGoal($goal->id) 
+        ];
+    });
+    // dd($goalData);
+
+    $families = Family::all();
+
+    $incomes = Transaction::where('type', 'income')
+        ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
+        ->groupBy('date')
+        ->orderBy('date')
+        ->get();
+
+    $expenses = Transaction::where('type', 'expense')
+        ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
+        ->groupBy('date')
+        ->orderBy('date')
+        ->get();
+
+    $total_income = Transaction::where('type', 'income')->sum('amount');
+    $total_expense = Transaction::where('type', 'expense')->sum('amount');
+    $current_budget = $total_income - $total_expense;
+
+    return view('user.dashboard', compact('families', 'user', 'categories', 'transactions', 'incomes', 'expenses', 'current_budget', 'goals', 'goalData'));
+}
+
+//     public function showDashboard($id)
+// {
     
+//     $user = User::find($id);
+//     if (!$user) {
+//         abort(404, 'User not found');
+//     }
+
+   
+//     $categories = Category::all();
+//     $transactions = Transaction::all();
+//     $goals = Goals::all();
+//     $n = $goals->count();  
+
+    
+//     $goalData = $goals->map(function ($goal) use ($n) {
+//         return [
+//             'title' => $goal->title,
+//             'percent' => ($goal->priority == 'high' ? 1 : ($goal->priority == 'medium' ? 0.75 : 0.5)) * 100 / $n, 
+//             'color' => $this->generateColorForGoal($goal) 
+//         ];
+//     });
+
+//     $families = Family::all();
+
+//     $incomes = Transaction::where('type', 'income')
+//         ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
+//         ->groupBy('date')
+//         ->orderBy('date')
+//         ->get();
+
+//     $expenses = Transaction::where('type', 'expense')
+//         ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
+//         ->groupBy('date')
+//         ->orderBy('date')
+//         ->get();
+
+//     $total_income = Transaction::where('type', 'income')->sum('amount');
+//     $total_expense = Transaction::where('type', 'expense')->sum('amount');
+//     $current_budget = $total_income - $total_expense;
+
+//     return view('user.dashboard', compact('families', 'user', 'categories', 'transactions', 'incomes', 'expenses', 'current_budget', 'goals', 'goalData'));
+// }
+
+// public function generateColorForGoal($goal)
+// {
+   
+//     $hue = (int)$goal->id * 50 % 360; 
+//     return "hsl($hue, 100%, 50%)"; 
+// }
+public function generateColorForGoal($goalId)
+{
+    srand($goalId); // Assure une couleur stable pour un même objectif
+    return sprintf('#%06X', mt_rand(0, 0xFFFFFF));
+}
+
 
     public function showProfilPage(){
         $family = Auth::user();

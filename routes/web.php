@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\GoalController;
 
 
 // publics routes 
@@ -31,6 +32,11 @@ Route::middleware(['auth'])->group(function (){
     // CRUD transactions
     Route::resource('transactions', TransactionController::class);
     Route::get('/dashboard/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('dashboard.transactions.edit');
+
+
+    // CRUD goals
+    Route::resource('goals', GoalController::class);
+    Route::get('/dashboard/goals/{goal}/edit', [GoalController::class, 'edit'])->name('dashboard.goals.edit');
 
 });
 

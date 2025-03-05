@@ -6,6 +6,7 @@
   <title>Dashbord</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <style>
     body {
       background-color: #DFDBE5;
@@ -52,7 +53,7 @@
           </form>
         </div>
         <!-- Income, Expense, and Budget Charts -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
   <!-- Income Chart -->
   <div class="bg-white p-6 rounded-lg shadow-lg">
     <h3 class="text-xl font-bold mb-4">Income</h3>
@@ -73,6 +74,18 @@
     <canvas id="budgetChart"></canvas>
     <h3 class="text-center"> {{ $current_budget }}</h3>
   </div>
+
+  <!-- Optimize Chart -->
+  <div class="bg-white p-6 rounded-lg shadow-lg">
+    <h3 class="text-xl font-bold mb-4">Optimize</h3>
+    <canvas id="optimizebudgetChart"></canvas>
+    <h3 class="text-center"> {{ $current_budget }}</h3>
+    <div class="flex justify-around">
+      <button id="defaultButton" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#9f84c7] hover:bg-[#a49cb1]">Default</button>
+      <button id="intelligentButton" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#9f84c7] hover:bg-[#a49cb1]">Intelligent</button>
+    </div>
+  </div>
+
 </div>
 
                   <!-- Transaction Table Card -->
@@ -306,7 +319,149 @@
                 </form>
               </div>
   </div>
+  
 </div>
+<div class="container mx-auto px-4">
+    <h2 class="text-2xl font-bold mb-4">Goals Management</h2>
+    
+    <!-- Button to open add goal modal -->
+    <button id="openGoalModal" class="bg-blue-500 text-white px-4 py-2 rounded-md">
+        + Add Goal
+    </button>
+
+    <!-- Goals Table -->
+    <div class="mt-6">
+        <table class="w-full border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border p-2">Title</th>
+                    <!-- <th class="border p-2">Amount</th> -->
+                    <th class="border p-2">Priority</th>
+                    <th class="border p-2">Family</th>
+                    <th class="border p-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($goals as $goal)
+                <tr>
+                    <td class="border p-2">{{ $goal->title }}</td>
+                    <!-- <td class="border p-2">{{ $goal->amount }} $</td> -->
+                    <td class="border p-2">{{ ucfirst($goal->priority) }}</td>
+                    <td class="border p-2">{{ $goal->family->name ?? 'N/A' }}</td>
+                    <td class="border p-2">
+                        <button onclick="editGoal({{ $goal->id }})" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
+                        <form action="{{ route('goals.destroy', $goal->id) }}" method="POST" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add/Edit Goal Modal -->
+<div id="goalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="text-lg font-medium text-gray-900">Goal Details</h3>
+            <button id="closeGoalModal" class="text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="p-6">
+            <form id="goalForm" action="{{ route('goals.store') }}" method="POST">
+                @csrf
+                <input type="hidden" id="goal_id" name="id">
+
+                <div class="mb-4">
+                    <label for="title" class="block text-gray-700 font-medium mb-2">Title</label>
+                    <input type="text" id="title" name="title" class="w-full px-3 py-2 border rounded-md" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="priority" class="block text-gray-700 font-medium mb-2">Priority</label>
+                    <select id="priority" name="priority" class="w-full px-3 py-2 border rounded-md">
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="family_id" class="block text-gray-700 font-medium mb-2">Family</label>
+                    <select id="family_id" name="family_id" class="w-full px-3 py-2 border rounded-md">
+                        @foreach ($families as $family)
+                            <option value="{{ $family->id }}">{{ $family->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="button" id="cancelGoalBtn" class="w-full bg-gray-200 hover:bg-gray-300 py-2 rounded-md">Cancel</button>
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white py-2 rounded-md">Save Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Update Goal Modal -->
+<div id="updateGoalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h3 class="text-lg font-medium text-gray-900">Update Goal</h3>
+            <button id="closeUpdateGoalModal" class="text-gray-400 hover:text-gray-500">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <form id="updateGoalForm" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="update_goal_id" name="goal_id">
+
+                <div class="mb-4">
+                    <label for="update_title" class="block text-gray-700 font-medium mb-2">Title</label>
+                    <input type="text" id="update_title" name="title" class="w-full px-3 py-2 border rounded-md" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="update_priority" class="block text-gray-700 font-medium mb-2">Priority</label>
+                    <select id="update_priority" name="priority" class="w-full px-3 py-2 border rounded-md">
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="update_family_id" class="block text-gray-700 font-medium mb-2">Family</label>
+                    <select id="update_family_id" name="family_id" class="w-full px-3 py-2 border rounded-md">
+                        @foreach ($families as $family)
+                            <option value="{{ $family->id }}">{{ $family->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="button" id="cancelUpdateGoalBtn" class="w-full bg-gray-200 hover:bg-gray-300 py-2 rounded-md">Cancel</button>
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-700 text-white py-2 rounded-md">Update Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 </div>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -405,91 +560,190 @@ document.addEventListener('keydown', function(event) {
     }
 });
 </script>
+
+
 <script>
-  // Pass the data from Blade to JavaScript
-  const incomesData = @json($incomes);
-  const expensesData = @json($expenses);
-  const currentBudget = @json($current_budget);
+document.getElementById('openGoalModal').addEventListener('click', function() {
+    document.getElementById('goalModal').classList.remove('hidden');
+});
 
-  // Format data for chart.js
-  const incomeDates = incomesData.map(income => income.date);
-  const incomeTotals = incomesData.map(income => income.total);
+document.getElementById('closeGoalModal').addEventListener('click', function() {
+    document.getElementById('goalModal').classList.add('hidden');
+});
 
-  const expenseDates = expensesData.map(expense => expense.date);
-  const expenseTotals = expensesData.map(expense => expense.total);
-
-  // Budget chart data
-  const budgetData = {
-    labels: incomeDates,  // Same as income dates
-    datasets: [{
-      label: 'Budget',
-      data: incomeTotals.map((income, index) => income - (expenseTotals[index] || 0)), // Calculate budget per date
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      borderColor: 'rgba(75, 192, 192, 1)',
-      borderWidth: 1
-    }]
-  };
-
-  // Income Chart
-  const incomeChart = new Chart(document.getElementById('incomeChart'), {
-    type: 'line',
-    data: {
-      labels: incomeDates,
-      datasets: [{
-        label: 'Income',
-        data: incomeTotals,
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-
-  // Expense Chart
-  const expenseChart = new Chart(document.getElementById('expenseChart'), {
-    type: 'line',
-    data: {
-      labels: expenseDates,
-      datasets: [{
-        label: 'Expenses',
-        data: expenseTotals,
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-
-  // Budget Chart
-  const budgetChart = new Chart(document.getElementById('budgetChart'), {
-    type: 'line',
-    data: budgetData,
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
+function editGoal(goal) {
+    document.getElementById('goal_id').value = goal.id;
+    document.getElementById('title').value = goal.title;
+    document.getElementById('amount').value = goal.amount;
+    document.getElementById('priority').value = goal.priority;
+    document.getElementById('family_id').value = goal.family_id;
+    document.getElementById('goalModal').classList.remove('hidden');
+}
 </script>
+<script>
+// Close update modal when close button is clicked
+document.getElementById('closeUpdateGoalModal').addEventListener('click', function() {
+    document.getElementById('updateGoalModal').classList.add('hidden');
+});
+
+// Cancel button functionality for update modal
+document.getElementById('cancelUpdateGoalBtn').addEventListener('click', function() {
+    document.getElementById('updateGoalModal').classList.add('hidden');
+});
+
+// Edit goal function for updating
+function editGoal(id, title, priority, family_id) {
+    // Set form action
+    document.getElementById('updateGoalForm').action = "{{ route('goals.update', '') }}/" + id;
+
+    // Fill form with goal data
+    document.getElementById('update_goal_id').value = id;  // Correspond au champ hidden dans ton formulaire
+    document.getElementById('update_title').value = title;
+    document.getElementById('update_priority').value = priority;
+    document.getElementById('update_family_id').value = family_id;
+
+    // Show modal
+    document.getElementById('updateGoalModal').classList.remove('hidden');
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Récupération des données depuis Blade
+    const incomesData = @json($incomes);
+    const expensesData = @json($expenses);
+    const goalData = @json($goalData);
+    const currentBudget = @json($current_budget);
+
+    // Logs de débogage
+    console.log('Données des objectifs:', goalData);
+
+    // Création des charts pour les revenus, dépenses et budget
+    function createFinancialCharts() {
+        // Income Chart
+        const incomeChart = new Chart(document.getElementById('incomeChart'), {
+            type: 'line',
+            data: {
+                labels: incomesData.map(income => income.date),
+                datasets: [{
+                    label: 'Revenus',
+                    data: incomesData.map(income => income.total),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Expense Chart
+        const expenseChart = new Chart(document.getElementById('expenseChart'), {
+            type: 'line',
+            data: {
+                labels: expensesData.map(expense => expense.date),
+                datasets: [{
+                    label: 'Dépenses',
+                    data: expensesData.map(expense => expense.total),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Budget Chart
+        const budgetChart = new Chart(document.getElementById('budgetChart'), {
+            type: 'line',
+            data: {
+                labels: incomesData.map(income => income.date),
+                datasets: [{
+                    label: 'Budget',
+                    data: incomesData.map((income, index) => 
+                        income.total - (expensesData[index]?.total || 0)
+                    ),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    // Fonction pour créer le chart des objectifs
+    function createGoalChart(data, backgroundColors) {
+        const optimizeChartCtx = document.getElementById('optimizebudgetChart');
+        
+        // Destruction du chart existant s'il y en a un
+        if (window.optimizeChart) {
+            window.optimizeChart.destroy();
+        }
+
+        // Création du nouveau chart
+        window.optimizeChart = new Chart(optimizeChartCtx, {
+            type: 'pie',
+            data: {
+                labels: data.map(goal => goal.title),
+                datasets: [{
+                    data: data.map(goal => goal.percent),
+                    backgroundColor: data.map(goal => goal.color),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.formattedValue}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialisation des charts
+    createFinancialCharts();
+    createGoalChart(goalData);
+
+    // Gestion des boutons
+    const defaultButton = document.getElementById('defaultButton');
+    const intelligentButton = document.getElementById('intelligentButton');
+
+    if (defaultButton) {
+        defaultButton.addEventListener('click', function() {
+            // Méthode 50/30/20 classique
+            const defaultData = [
+                { title: 'Besoins', percent: 50, color: 'rgba(54, 162, 235, 0.6)' },
+                { title: 'Désirs', percent: 30, color: 'rgba(255, 99, 132, 0.6)' },
+                { title: 'Épargne', percent: 20, color: 'rgba(75, 192, 192, 0.6)' }
+            ];
+            createGoalChart(defaultData);
+        });
+    }
+
+    if (intelligentButton) {
+        intelligentButton.addEventListener('click', function() {
+            // Méthode de calcul de probabilité basée sur les objectifs
+            createGoalChart(goalData);
+        });
+    }
+});
+</script>
+
 
 </body>
 </html>

@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('goals', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->float('target_amount');
-            $table->date('deadline');
+            $table->string('title', 255);
+            $table->enum('priority', ['high', 'medium', 'low'])->default('medium');
             $table->timestamps();
             $table->foreignId('family_id')->constrained('families')->onDelete('cascade');
         });
