@@ -420,6 +420,90 @@
     });
 </script>
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get references to modal elements
+    const addTransactionBtn = document.querySelector('button.inline-flex.items-center.px-2.py-2.border.border-transparent');
+    const transactionModal = document.getElementById('addTransactionModal');
+    const closeTransactionModal = document.getElementById('closeTransactionModal');
+    const cancelTransactionBtn = document.getElementById('cancelTransactionBtn');
+    const transactionForm = document.getElementById('addTransactionForm');
+    
+    // Function to show transaction modal
+    function showTransactionModal() {
+        transactionModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Function to hide transaction modal
+    function hideTransactionModal() {
+        transactionModal.classList.add('hidden');
+        document.body.style.overflow = '';
+        transactionForm.reset();
+    }
+    
+    // Add event listeners
+    if (addTransactionBtn) {
+        addTransactionBtn.addEventListener('click', showTransactionModal);
+    }
+    
+    closeTransactionModal.addEventListener('click', hideTransactionModal);
+    cancelTransactionBtn.addEventListener('click', hideTransactionModal);
+    
+    // Close modal when clicking outside of it
+    transactionModal.addEventListener('click', function(event) {
+        if (event.target === transactionModal) {
+            hideTransactionModal();
+        }
+    });
+    
+    // Keyboard accessibility
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && !transactionModal.classList.contains('hidden')) {
+            hideTransactionModal();
+        }
+    });
+
+    // Function to open the modal for a specific transaction
+    function openModal(transactionId) {
+        const modal = document.getElementById(`updateTransactionModal-${transactionId}`);
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // Function to close the modal for a specific transaction
+    function closeModal(transactionId) {
+        const modal = document.getElementById(`updateTransactionModal-${transactionId}`);
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    // Close modal when clicking outside of the modal content (optional enhancement)
+    document.addEventListener('click', function(event) {
+        const modals = document.querySelectorAll('[id^="updateTransactionModal-"]');
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                const transactionId = modal.id.split('-')[1];
+                closeModal(transactionId);
+            }
+        });
+    });
+
+    // Close modal with Escape key (optional enhancement)
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const visibleModal = document.querySelector('[id^="updateTransactionModal-"]:not(.hidden)');
+            if (visibleModal) {
+                const transactionId = visibleModal.id.split('-')[1];
+                closeModal(transactionId);
+            }
+        }
+    });
+});
+
 </script>
 
 
