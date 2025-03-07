@@ -55,42 +55,26 @@ class AuthController extends Controller
     $categories = Category::all();
     $transactions = Transaction::all();
     $goals = Goals::all();
-    $n = max($goals->count(),1);  
-    
+    $n = max($goals->count(), 1);  
+   
     $priorityWeights = ['high' => 3, 'medium' => 2, 'low' => 1];
 
+    $totalWeight = $goals->sum(fn($goal) => $priorityWeights[$goal->priority] ?? 1);
+    // dd($totalWeight);
     $priorityPercentages = [];
-
     foreach ($priorityWeights as $priority => $weight) {
-        $priorityPercentages[$priority] = $this->calculerCombinaison(3, 1) 
-            * $this->calculerCombinaison(6, $weight) 
-            / $this->calculerCombinaison($n, 1);
+        $priorityPercentages[$priority] = ($weight / $totalWeight) * 100;
     }
 
-
-    $highPercent = $priorityPercentages['high'];
-    $mediumPercent = $priorityPercentages['medium'];
-    $lowPercent = $priorityPercentages['low'];
-
-
-    $goalData = $goals->map(function ($goal) use ($n, $priorityWeights, $highPercent, $mediumPercent, $lowPercent) {
-        $percent = match ($goal->priority) {
-            'high' => $highPercent,
-            'medium' => $mediumPercent,
-            'low' => $lowPercent,
-            default => 10
-        };
-
+    $goalData = $goals->map(function ($goal) use ($priorityPercentages) {
         return [
             'title' => $goal->title,
-            'percent' => $percent , 
-            'color' => $this->generateColorForGoal($goal->id) 
+            'percent' => $priorityPercentages[$goal->priority] ?? 10, 
+            'color' => $this->generateColorForGoal($goal->id)
         ];
     });
-    // dd($goalData);
 
     $families = Family::all();
-
     $incomes = Transaction::where('type', 'income')
         ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
         ->groupBy('date')
@@ -106,16 +90,18 @@ class AuthController extends Controller
     $total_income = Transaction::where('type', 'income')->sum('amount');
     $total_expense = Transaction::where('type', 'expense')->sum('amount');
     $current_budget = $total_income - $total_expense;
+
     foreach ($transactions as $transaction) {
-        // $transaction->author_name = User::find($transaction->author)->firstname;
-        $transaction->author_name = User::find($transaction->author)->firstname ?? 'Unknown';
+        $transaction->author_name = optional(User::find($transaction->author))->firstname ?? 'Unknown';
     }
+
     return view('user.dashboard', compact('families', 'user', 'categories', 'transactions', 'incomes', 'expenses', 'current_budget', 'goals', 'goalData'));
 }
 
+
 public function generateColorForGoal($goalId)
 {
-    srand($goalId); // Assure une couleur stable pour un même objectif
+    srand($goalId);
     return sprintf('#%06X', mt_rand(0, 0xFFFFFF));
 }
 

@@ -677,9 +677,9 @@ document.addEventListener('DOMContentLoaded', function() {
         defaultButton.addEventListener('click', function() {
             // Méthode 50/30/20 classique
             const defaultData = [
-                { title: 'Besoins', percent: 50, color: 'rgba(54, 162, 235, 0.6)' },
-                { title: 'Désirs', percent: 30, color: 'rgba(255, 99, 132, 0.6)' },
-                { title: 'Épargne', percent: 20, color: 'rgba(75, 192, 192, 0.6)' }
+                { title: 'Needs', percent: 50, color: 'rgba(54, 162, 235, 0.6)' },
+                { title: 'Desires', percent: 30, color: 'rgba(255, 99, 132, 0.6)' },
+                { title: 'Savings', percent: 20, color: 'rgba(75, 192, 192, 0.6)' }
             ];
             createGoalChart(defaultData);
         });
