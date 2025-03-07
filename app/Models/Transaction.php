@@ -11,7 +11,7 @@ class Transaction extends Model
         'description', 
         'type',
         'category_id',
-        'family_id'
+        'author',
     ];
 
     public function familys(){

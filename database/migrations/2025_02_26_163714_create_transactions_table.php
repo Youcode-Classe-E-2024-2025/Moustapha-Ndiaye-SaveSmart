@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->float('amount');
             $table->string('description');
+            $table->string('author');
             $table->string('type');
             $table->foreignId('categories_id')->constrained('categories')->onDelete('cascade');
-            $table->foreignId('family_id')->constrained('families')->onDelete('cascade');
             $table->timestamps();
         });
     }

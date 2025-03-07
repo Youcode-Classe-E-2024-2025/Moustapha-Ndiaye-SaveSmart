@@ -14,4 +14,11 @@ class User extends Model
     public function familys(){
         return $this->belongsTo(Family::class);
     }
+
+
+public function author()
+{
+    return $this->belongsTo(User::class, 'author', 'id');
+}
+
 }

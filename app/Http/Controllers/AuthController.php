@@ -55,7 +55,7 @@ class AuthController extends Controller
     $categories = Category::all();
     $transactions = Transaction::all();
     $goals = Goals::all();
-    $n = $goals->count();  
+    $n = max($goals->count(),1);  
     
     $priorityWeights = ['high' => 3, 'medium' => 2, 'low' => 1];
 
@@ -106,60 +106,13 @@ class AuthController extends Controller
     $total_income = Transaction::where('type', 'income')->sum('amount');
     $total_expense = Transaction::where('type', 'expense')->sum('amount');
     $current_budget = $total_income - $total_expense;
-
+    foreach ($transactions as $transaction) {
+        // $transaction->author_name = User::find($transaction->author)->firstname;
+        $transaction->author_name = User::find($transaction->author)->firstname ?? 'Unknown';
+    }
     return view('user.dashboard', compact('families', 'user', 'categories', 'transactions', 'incomes', 'expenses', 'current_budget', 'goals', 'goalData'));
 }
 
-//     public function showDashboard($id)
-// {
-    
-//     $user = User::find($id);
-//     if (!$user) {
-//         abort(404, 'User not found');
-//     }
-
-   
-//     $categories = Category::all();
-//     $transactions = Transaction::all();
-//     $goals = Goals::all();
-//     $n = $goals->count();  
-
-    
-//     $goalData = $goals->map(function ($goal) use ($n) {
-//         return [
-//             'title' => $goal->title,
-//             'percent' => ($goal->priority == 'high' ? 1 : ($goal->priority == 'medium' ? 0.75 : 0.5)) * 100 / $n, 
-//             'color' => $this->generateColorForGoal($goal) 
-//         ];
-//     });
-
-//     $families = Family::all();
-
-//     $incomes = Transaction::where('type', 'income')
-//         ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
-//         ->groupBy('date')
-//         ->orderBy('date')
-//         ->get();
-
-//     $expenses = Transaction::where('type', 'expense')
-//         ->selectRaw('DATE(created_at) as date, SUM(amount) as total')
-//         ->groupBy('date')
-//         ->orderBy('date')
-//         ->get();
-
-//     $total_income = Transaction::where('type', 'income')->sum('amount');
-//     $total_expense = Transaction::where('type', 'expense')->sum('amount');
-//     $current_budget = $total_income - $total_expense;
-
-//     return view('user.dashboard', compact('families', 'user', 'categories', 'transactions', 'incomes', 'expenses', 'current_budget', 'goals', 'goalData'));
-// }
-
-// public function generateColorForGoal($goal)
-// {
-   
-//     $hue = (int)$goal->id * 50 % 360; 
-//     return "hsl($hue, 100%, 50%)"; 
-// }
 public function generateColorForGoal($goalId)
 {
     srand($goalId); // Assure une couleur stable pour un même objectif

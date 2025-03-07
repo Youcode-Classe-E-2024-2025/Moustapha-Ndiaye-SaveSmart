@@ -29,31 +29,34 @@ class TransactionController extends Controller
     $family = Auth::user(); 
     $familyid = $family->id;
 
-    $request->validate([
+    $validated = $request->validate([
+        'author' => 'required|exists:users,id',
         'description' => 'required|string|max:255',
         'amount' => 'required|numeric|min:0.01',
         'type' => 'required|in:income,expense',
-        'categories_id' => 'required|exists:categories,id',
+        'categories_id' => 'required|exists:categories,id'
     ]);
     
-    // dd($request->all());
-
+    // dd($validated);
     
     // Transaction::create([
-    //     'description' => $request->description,
-    //     'amount' => $request->amount,
-    //     'type' => $request->type,
-    //     'categories_id' => $request->categories_id, 
-    //     'family_id' => $familyid,  
+    //     'description' => $validated['description'],
+    //     'amount' => $validated['amount'],
+    //     'type' => $validated['type'],
+    //     'categories_id' => $validated['categories_id'],
+    //     'author' => User::find($validated['author'])->firstname, 
+        
     // ]);
     $transaction = new Transaction();
+    $transaction->author = $request->author;
     $transaction->description = $request->description;
     $transaction->amount = $request->amount;
     $transaction->type = $request->type;
     $transaction->categories_id = $request->categories_id;
-    $transaction->family_id = $familyid;
-
     $transaction->save();
+
+
+    // Transaction::create($validated);
 
     return redirect()->back()->with('success', 'Transaction added.');
 }
@@ -75,6 +78,7 @@ class TransactionController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
+            'author' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:income,expense',
@@ -83,6 +87,7 @@ class TransactionController extends Controller
 
         $transaction = Transaction::findOrFail($id);
         $transaction->update([
+            'author' => $request->author,
             'description' => $request->description,
             'amount' => $request->amount,
             'type' => $request->type,

@@ -199,7 +199,7 @@
                 <table>
                     <thead class="bg-gray-50">
                         <tr>
-                            <!-- <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th> -->
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                             <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
@@ -210,7 +210,7 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach ($transactions as $transaction)
                         <tr class="hover:bg-gray-50">
-                            <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->created_at->format('Y-m-d') }}</td> -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->author_name  }}</td>
                             <td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $transaction->description }}</td>
                             <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->category->name }}</td>
                             <td class="px-3 py-4 whitespace-nowrap">
@@ -280,6 +280,12 @@
                       @endforeach
                   </select>
                    </div>
+                   <div class="mb-4">
+                    <label for="author" class="block text-gray-700 font-medium mb-2">Family Member</label>
+                    <select id="author" name="author" class="w-full px-3 py-2 border rounded-md">
+                            <option value="{{ $user->id }}">{{ $user->firstname }}</option>
+                    </select>
+                </div>
 
                   
                   <div class="flex gap-4">
@@ -331,11 +337,9 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="family_id" class="block text-gray-700 font-medium mb-2">Family</label>
-                    <select id="family_id" name="family_id" class="w-full px-3 py-2 border rounded-md">
-                        @foreach ($families as $family)
-                            <option value="{{ $family->id }}">{{ $family->name }}</option>
-                        @endforeach
+                    <label for="firstname" class="block text-gray-700 font-medium mb-2">Family menber</label>
+                    <select id="firstname" name="firstname" class="w-full px-3 py-2 border rounded-md">
+                            <option value="{{ $user->id }}">{{ $user->firstname }}</option>
                     </select>
                 </div>
 
@@ -381,11 +385,12 @@
 
                 <div class="mb-4">
                     <label for="update_family_id" class="block text-gray-700 font-medium mb-2">Family</label>
-                    <select id="update_family_id" name="family_id" class="w-full px-3 py-2 border rounded-md">
-                        @foreach ($families as $family)
-                            <option value="{{ $family->id }}">{{ $family->name }}</option>
-                        @endforeach
+                    <div class="mb-4">
+                    <label for="firstname" class="block text-gray-700 font-medium mb-2">Family menber</label>
+                    <select id="firstname" name="firstname" class="w-full px-3 py-2 border rounded-md">
+                            <option value="{{ $user->id }}">{{ $user->firstname }}</option>
                     </select>
+                </div>
                 </div>
 
                 <div class="flex gap-4">
