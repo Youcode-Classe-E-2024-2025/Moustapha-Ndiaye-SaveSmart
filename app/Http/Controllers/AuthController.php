@@ -56,11 +56,10 @@ class AuthController extends Controller
     $transactions = Transaction::all();
     $goals = Goals::all();
     $n = max($goals->count(), 1);  
-   
+
     $priorityWeights = ['high' => 3, 'medium' => 2, 'low' => 1];
 
     $totalWeight = $goals->sum(fn($goal) => $priorityWeights[$goal->priority] ?? 1);
-    // dd($totalWeight);
     $priorityPercentages = [];
     foreach ($priorityWeights as $priority => $weight) {
         $priorityPercentages[$priority] = ($weight / $totalWeight) * 100;
@@ -91,12 +90,32 @@ class AuthController extends Controller
     $total_expense = Transaction::where('type', 'expense')->sum('amount');
     $current_budget = $total_income - $total_expense;
 
+    
+    $goalBudgets = [];
+    foreach ($goals as $goal) {
+        $goalBudgets[$goal->title] = ($priorityPercentages[$goal->priority] ?? 10) / 100 * $current_budget;
+    }
+
+    $categoryBudgets = [];
+    foreach ($categories as $category) {
+        if ($category->name === 'Nécessités') {
+            $categoryBudgets[$category->name] = $necessities_budget;
+        } elseif ($category->name === 'Envies') {
+            $categoryBudgets[$category->name] = $wants_budget;
+        } elseif ($category->name === 'Épargne') {
+            $categoryBudgets[$category->name] = $savings_budget;
+        } else {
+            $categoryBudgets[$category->name] = 0; 
+        }
+    }
+
     foreach ($transactions as $transaction) {
         $transaction->author_name = optional(User::find($transaction->author))->firstname ?? 'Unknown';
     }
 
-    return view('user.dashboard', compact('families', 'user', 'categories', 'transactions', 'incomes', 'expenses', 'current_budget', 'goals', 'goalData'));
+    return view('user.dashboard', compact('families', 'user', 'categories', 'transactions', 'incomes', 'expenses', 'current_budget', 'goals', 'goalData', 'categoryBudgets', 'goalBudgets'));
 }
+
 
 
 public function generateColorForGoal($goalId)
